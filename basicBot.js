@@ -821,7 +821,7 @@
             }
         },
         eventDjadvance: function (obj) {
-            $("#woot").click();
+           
             var user = basicBot.userUtilities.lookupUser(obj.dj.id)
             for(var i = 0; i < basicBot.room.users.length; i++){
                 if(basicBot.room.users[i].id === user.id){
@@ -1212,7 +1212,7 @@
             basicBot.status = true;
             API.sendChat('/cap ' + basicBot.settings.startupCap);
             API.setVolume(basicBot.settings.startupVolume);
-            $("#woot").click();
+           
             if (basicBot.settings.startupEmoji) {
                 var emojibuttonoff = $(".icon-emoji-off");
                 if (emojibuttonoff.length > 0) {
