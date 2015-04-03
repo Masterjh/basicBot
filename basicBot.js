@@ -37,7 +37,13 @@
         localStorage.setItem("basicBotStorageInfo", JSON.stringify(basicBotStorageInfo));
 
     };
- 
+       var waitlist = API.getWaitList()
+    if (waitlist.length > 0) {
+    	API.sendChat ('@' + waitlist[1].username + ' You're up shortly!'')
+    }
+    else {console.log('The waitlist is empty, fools')}
+
+};
     var subChat = function (chat, obj) {
         if (typeof chat === "undefined") {
             API.chatLog("There is a chat text missing.");
@@ -2992,9 +2998,4 @@
     loadChat(basicBot.startup);
 }).call(this);
 
-   var waitlist = API.getWaitList()
-    if (waitlist.length > 0) {
-    	API.sendChat ('@' + waitlist[1].username + ' You're up shortly!'')
-    }
-    else {console.log('The waitlist is empty, fools')}
-});
+
