@@ -40,7 +40,7 @@
     API.on(API.ADVANCE, function(){
        var waitlist = API.getWaitList()
     if (waitlist.length > 0) {
-    	API.sendChat ('@' + waitlist[1].username + ' You\'re up shortly!'')
+    	API.sendChat ('@' + waitlist[1].username + ' You\'re up shortly!')
     }
     else {console.log('The waitlist is empty, fools')}
 });
