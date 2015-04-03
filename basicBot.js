@@ -43,8 +43,7 @@
     	API.sendChat ('@' + waitlist[1].username + ' You're up shortly!'')
     }
     else {console.log('The waitlist is empty, fools')}
-
-};
+});
     var subChat = function (chat, obj) {
         if (typeof chat === "undefined") {
             API.chatLog("There is a chat text missing.");
