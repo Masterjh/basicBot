@@ -37,6 +37,7 @@
         localStorage.setItem("basicBotStorageInfo", JSON.stringify(basicBotStorageInfo));
 
     };
+    API.on(API.ADVANCE, function(){
        var waitlist = API.getWaitList()
     if (waitlist.length > 0) {
     	API.sendChat ('@' + waitlist[1].username + ' You're up shortly!'')
