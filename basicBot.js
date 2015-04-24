@@ -905,7 +905,7 @@
                 }
             }
 
-            /*var alreadyPlayed = false;
+            var alreadyPlayed = false;
             for (var i = 0; i < basicBot.room.historyList.length; i++) {
                 if (basicBot.room.historyList[i][0] === obj.media.cid) {
                     var firstPlayed = basicBot.room.historyList[i][1];
@@ -918,7 +918,7 @@
             }
             if (!alreadyPlayed) {
                 basicBot.room.historyList.push([obj.media.cid, +new Date()]);
-            }*/
+            }
 
             if (basicBot.settings.historySkip) {
                 var alreadyPlayed = false;
