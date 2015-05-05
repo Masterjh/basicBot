@@ -267,6 +267,8 @@
             "Are you kidding?",
             "Don't bet on it.",
             "Forget about it."
+            "To get the answer for this question you must upgrade to 9 Ball for $9.99.",
+            "Wait, what the question?"
             ],
             afkpositionCheck: 15,
             afkRankCheck: "ambassador",
@@ -1766,7 +1768,9 @@
                     'gives you an Oreo cookie with a glass of milk!',
                     'gives you a rainbow cookie made with love :heart:',
                     'gives you an old cookie that was left out in the rain, it\'s moldy.',
-                    'bakes you fresh cookies, it smells amazing.'
+                    'bakes you fresh cookies, it smells amazing.',
+                    'gives you a cookie from their personal stash.',
+                    'gives you some Girl Scout cookies'
                 ],
                 getCookie: function () {
                     var c = Math.floor(Math.random() * this.cookies.length);
