@@ -37,13 +37,14 @@
         localStorage.setItem("basicBotStorageInfo", JSON.stringify(basicBotStorageInfo));
 
     };
-	API.on(API.ADVANCE, function(){
-       var waitlist = API.getWaitList()
-	  if (waitlist.length > 0) {
-    	API.sendChat ('/me @' + waitlist[1].username + ' You\'re up shortly!')
-    }
-    else {console.log('The waitlist is empty, fools')}
-});
+    
+    	API.on(API.ADVANCE, function(){
+		 var waitlist = API.getWaitList()
+			 if (waitlist.length > 0) {
+    				API.sendChat ('/me @' + waitlist[1].username + ' You\'re up shortly!')
+	}
+			  else {console.log('The waitlist is empty, fools')}
+	});
 
     var subChat = function (chat, obj) {
         if (typeof chat === "undefined") {
@@ -186,7 +187,7 @@
     var botCreatorIDs = ["3851534", "4105209"];
 
     var basicBot = {
-        version: "2.3.4",
+        version: "2.4.5",
         status: false,
         name: "basicBot",
         loggedInID: null,
@@ -232,41 +233,6 @@
                 ["sound", "The song you played had bad sound quality or no sound. "],
                 ["nsfw", "The song you contained was NSFW (image or sound). "],
                 ["unavailable", "The song you played was not available for some users. "]
-            ],
-            ball: [
-            "Signs point to yes.",
-            "Yes.",
-            "Reply hazy, try again.",
-            "Without a doubt.",
-            "My sources say no.",
-            "As I see it, yes.",
-            "You may rely on it.",
-            "Concentrate and ask again.",
-            "Outlook not so good.",
-            "It is decidedly so.",
-            "Better not tell you now.",
-            "Very doubtful.",
-            "Yes - definitely.",
-            "It is certain.",
-            "Cannot predict now.",
-            "Most likely.",
-            "Ask again later.",
-            "My reply is no.",
-            "Outlook good.",
-            "Don't count on it.",
-            "Yes, in due time.",
-            "My sources say no.",
-            "Definitely not.",
-            "You will have to wait.",
-            "I have my doubts.",
-            "Outlook so so.",
-            "Looks good to me!",
-            "Who knows?",
-            "Looking good!",
-            "Probably.",
-            "Are you kidding?",
-            "Don't bet on it.",
-            "Forget about it."
             ],
             afkpositionCheck: 15,
             afkRankCheck: "ambassador",
@@ -865,7 +831,7 @@
             }
         },
         eventDjadvance: function (obj) {
-            
+           // $("#woot").click(); // autowoot
 
             var user = basicBot.userUtilities.lookupUser(obj.dj.id)
             for(var i = 0; i < basicBot.room.users.length; i++){
@@ -904,37 +870,24 @@
                     }
                 }
             }
-
-            var alreadyPlayed = false;
-            for (var i = 0; i < basicBot.room.historyList.length; i++) {
-                if (basicBot.room.historyList[i][0] === obj.media.cid) {
-                    var firstPlayed = basicBot.room.historyList[i][1];
-                    var plays = basicBot.room.historyList[i].length - 1;
-                    var lastPlayed = basicBot.room.historyList[i][plays];
-                    API.sendChat(subChat(basicBot.chat.songknown, {plays: plays, timetotal: basicBot.roomUtilities.msToStr(Date.now() - firstPlayed), lasttime: basicBot.roomUtilities.msToStr(Date.now() - lastPlayed)}));
-                    basicBot.room.historyList[i].push(+new Date());
-                    alreadyPlayed = true;
-                }
-            }
-            if (!alreadyPlayed) {
-                basicBot.room.historyList.push([obj.media.cid, +new Date()]);
-            }
-
+            clearTimeout(historySkip);
             if (basicBot.settings.historySkip) {
                 var alreadyPlayed = false;
                 var apihistory = API.getHistory();
                 var name = obj.dj.username;
-                for (var i = 0; i < apihistory.length; i++) {
-                    if (apihistory[i].media.cid === obj.media.cid) {
-                        API.sendChat(subChat(basicBot.chat.songknown, {name: name}));
-                        API.moderateForceSkip();
-                        basicBot.room.historyList[i].push(+new Date());
-                        alreadyPlayed = true;
+                var historySkip = setTimeout(function () {
+                    for (var i = 0; i < apihistory.length; i++) {
+                        if (apihistory[i].media.cid === obj.media.cid) {
+                            API.sendChat(subChat(basicBot.chat.songknown, {name: name}));
+                            API.moderateForceSkip();
+                            basicBot.room.historyList[i].push(+new Date());
+                            alreadyPlayed = true;
+                        }
                     }
-                }
-                if (!alreadyPlayed) {
-                    basicBot.room.historyList.push([obj.media.cid, +new Date()]);
-                }
+                    if (!alreadyPlayed) {
+                        basicBot.room.historyList.push([obj.media.cid, +new Date()]);
+                    }
+                }, 2000);
             }
             var newMedia = obj.media;
             if (basicBot.settings.timeGuard && newMedia.duration > basicBot.settings.maximumSongLength * 60 && !basicBot.room.roomevent) {
@@ -1174,9 +1127,7 @@
                 eventUserskip: $.proxy(this.eventUserskip, this),
                 eventUserjoin: $.proxy(this.eventUserjoin, this),
                 eventUserleave: $.proxy(this.eventUserleave, this),
-                //eventUserfan: $.proxy(this.eventUserfan, this),
                 //eventFriendjoin: $.proxy(this.eventFriendjoin, this),
-                //eventFanjoin: $.proxy(this.eventFanjoin, this),
                 eventVoteupdate: $.proxy(this.eventVoteupdate, this),
                 eventCurateupdate: $.proxy(this.eventCurateupdate, this),
                 eventRoomscoreupdate: $.proxy(this.eventRoomscoreupdate, this),
@@ -1193,7 +1144,6 @@
             API.on(API.USER_SKIP, this.proxy.eventUserskip);
             API.on(API.USER_JOIN, this.proxy.eventUserjoin);
             API.on(API.USER_LEAVE, this.proxy.eventUserleave);
-            //API.on(API.USER_FAN, this.proxy.eventUserfan);
             API.on(API.VOTE_UPDATE, this.proxy.eventVoteupdate);
             API.on(API.GRAB_UPDATE, this.proxy.eventCurateupdate);
             API.on(API.ROOM_SCORE_UPDATE, this.proxy.eventRoomscoreupdate);
@@ -1208,7 +1158,6 @@
             API.off(API.USER_SKIP, this.proxy.eventUserskip);
             API.off(API.USER_JOIN, this.proxy.eventUserjoin);
             API.off(API.USER_LEAVE, this.proxy.eventUserleave);
-            //API.off(API.USER_FAN, this.proxy.eventUserfan);
             API.off(API.VOTE_UPDATE, this.proxy.eventVoteupdate);
             API.off(API.CURATE_UPDATE, this.proxy.eventCurateupdate);
             API.off(API.ROOM_SCORE_UPDATE, this.proxy.eventRoomscoreupdate);
@@ -1294,7 +1243,7 @@
             basicBot.status = true;
             API.sendChat('/cap ' + basicBot.settings.startupCap);
             API.setVolume(basicBot.settings.startupVolume);
-           
+           // $("#woot").click();
             if (basicBot.settings.startupEmoji) {
                 var emojibuttonoff = $(".icon-emoji-off");
                 if (emojibuttonoff.length > 0) {
@@ -1503,7 +1452,15 @@
                         var lastActive = basicBot.userUtilities.getLastActivity(user);
                         var inactivity = Date.now() - lastActive;
                         var time = basicBot.roomUtilities.msToStr(inactivity);
+
+                        var launchT = basicBot.room.roomstats.launchTime;
+                        var durationOnline = Date.now() - launchT;
+
+                        if (inactivity == durationOnline){
+                            API.sendChat(subChat(basicBot.chat.inactivelonger, {botname: basicBot.settings.botName, name: chat.un, username: name}));
+                        } else {
                         API.sendChat(subChat(basicBot.chat.inactivefor, {name: chat.un, username: name, time: time}));
+                        }
                     }
                 }
             },
@@ -1588,9 +1545,9 @@
                             var msg = chat.message;
                             var argument = msg.substring(cmd.length + 1);
                             var randomUser = Math.floor(Math.random() * crowd.length);
-                            var randomBall = Math.floor(Math.random() * basicBot.settings.ball.length);
+                            var randomBall = Math.floor(Math.random() * basicBot.chat.balls.length);
                             var randomSentence = Math.floor(Math.random() * 1);
-                            API.sendChat(subChat(basicBot.chat.ball, {name: chat.un, botname: basicBot.settings.botName, question: argument, response: basicBot.settings.ball[randomBall]}));
+                            API.sendChat(subChat(basicBot.chat.ball, {name: chat.un, botname: basicBot.settings.botName, question: argument, response: basicBot.chat.balls[randomBall]}));
                      }
                 }
             },
@@ -1693,6 +1650,25 @@
                 }
             },
 
+            botnameCommand: {
+                command: 'botname',
+                rank: 'manager',
+                type: 'startsWith',
+                functionality: function (chat, cmd) {
+                    if (this.type === 'exact' && chat.message.length !== cmd.length) return void (0);
+                    if (!basicBot.commands.executable(this.rank, chat)) return void (0);
+                    else {
+                        var msg = chat.message;
+                        if (msg.length <= cmd.length + 1) return API.sendChat(subChat(basicBot.chat.currentbotname, {botname: basicBot.settings.botName}));
+                        var argument = msg.substring(cmd.length + 1);
+                        if (argument) {
+                            basicBot.settings.botName = argument;
+                            API.sendChat(subChat(basicBot.chat.botnameset, {botName: basicBot.settings.botName}));
+                        }
+                    }
+                }
+            },
+
             clearchatCommand: {
                 command: 'clearchat',
                 rank: 'manager',
@@ -1747,30 +1723,9 @@
                 command: 'cookie',
                 rank: 'user',
                 type: 'startsWith',
-                cookies: ['has given you a chocolate chip cookie!',
-                    'has given you a soft homemade oatmeal cookie!',
-                    'has given you a plain, dry, old cookie. It was the last one in the bag. Gross.',
-                    'gives you a sugar cookie. What, no frosting and sprinkles? 0/10 would not touch.',
-                    'gives you a chocolate chip cookie. Oh wait, those are raisins. Bleck!',
-                    'gives you an enormous cookie. Poking it gives you more cookies. Weird.',
-                    'gives you a fortune cookie. It reads "Why aren\'t you working on any projects?"',
-                    'gives you a fortune cookie. It reads "Give that special someone a compliment"',
-                    'gives you a fortune cookie. It reads "Take a risk!"',
-                    'gives you a fortune cookie. It reads "Go outside."',
-                    'gives you a fortune cookie. It reads "Don\'t forget to eat your veggies!"',
-                    'gives you a fortune cookie. It reads "Do you even lift?"',
-                    'gives you a fortune cookie. It reads "m808 pls"',
-                    'gives you a fortune cookie. It reads "If you move your hips, you\'ll get all the ladies."',
-                    'gives you a fortune cookie. It reads "I love you."',
-                    'gives you a Golden Cookie. You can\'t eat it because it is made of gold. Dammit.',
-                    'gives you an Oreo cookie with a glass of milk!',
-                    'gives you a rainbow cookie made with love :heart:',
-                    'gives you an old cookie that was left out in the rain, it\'s moldy.',
-                    'bakes you fresh cookies, it smells amazing.'
-                ],
-                getCookie: function () {
-                    var c = Math.floor(Math.random() * this.cookies.length);
-                    return this.cookies[c];
+                getCookie: function (chat) {
+                    var c = Math.floor(Math.random() * basicBot.chat.cookies.length);
+                    return basicBot.chat.cookies[c];
                 },
                 functionality: function (chat, cmd) {
                     if (this.type === 'exact' && chat.message.length !== cmd.length) return void (0);
@@ -1892,11 +1847,29 @@
                         var user = basicBot.userUtilities.lookupUserName(name);
                         if (typeof user === 'boolean') return API.sendChat(subChat(basicBot.chat.invaliduserspecified, {name: chat.un}));
                         var chats = $('.from');
+                        var message = $('.message');
+                        var emote = $('.emote');
+                        var from = $('.un.clickable');
                         for (var i = 0; i < chats.length; i++) {
-                            var n = chats[i].textContent;
+                            var n = from[i].textContent;
                             if (name.trim() === n.trim()) {
-                                var cid = $(chats[i]).parent()[0].getAttribute('data-cid');
-                                API.moderateDeleteChat(cid);
+
+                                // var messagecid = $(message)[i].getAttribute('data-cid');
+                                // var emotecid = $(emote)[i].getAttribute('data-cid');
+                                // API.moderateDeleteChat(messagecid);
+
+                                // try {
+                                //     API.moderateDeleteChat(messagecid);
+                                // }
+                                // finally {
+                                //     API.moderateDeleteChat(emotecid);
+                                // }
+
+                                if (typeof $(message)[i].getAttribute('data-cid') == "undefined"){
+                                    API.moderateDeleteChat($(emote)[i].getAttribute('data-cid')); // works well with normal messages but not with emotes due to emotes and messages are seperate.
+                                } else {
+                                    API.moderateDeleteChat($(message)[i].getAttribute('data-cid'));
+                                }
                             }
                         }
                         API.sendChat(subChat(basicBot.chat.deletechat, {name: chat.un, username: name}));
@@ -2048,7 +2021,7 @@
                             function get_id(api_key, fixedtag, func)
                             {
                                 $.getJSON(
-                                    "https://api.giphy.com/v1/gifs/random?", 
+                                    "https://tv.giphy.com/v1/gifs/random?", 
                                     { 
                                         "format": "json",
                                         "api_key": api_key,
@@ -2078,7 +2051,7 @@
                             function get_random_id(api_key, func)
                             {
                                 $.getJSON(
-                                    "https://api.giphy.com/v1/gifs/random?", 
+                                    "https://tv.giphy.com/v1/gifs/random?", 
                                     { 
                                         "format": "json",
                                         "api_key": api_key,
@@ -2238,6 +2211,34 @@
                 }
             },
 
+            languageCommand: {
+                command: 'language',
+                rank: 'manager',
+                type: 'startsWith',
+                functionality: function (chat, cmd) {
+                    if (this.type === 'exact' && chat.message.length !== cmd.length) return void (0);
+                    if (!basicBot.commands.executable(this.rank, chat)) return void (0);
+                    else {
+                        var msg = chat.message;
+                        if (msg.length <= cmd.length + 1) return API.sendChat(subChat(basicBot.chat.currentlang, {language: basicBot.settings.language}));
+                        var argument = msg.substring(cmd.length + 1);
+
+                        $.get("https://rawgit.com/Yemasthui/basicBot/master/lang/langIndex.json", function (json) {
+                            var langIndex = json;
+                            var link = langIndex[argument.toLowerCase()];
+                            if (typeof link === "undefined") {
+                                API.sendChat(subChat(basicBot.chat.langerror, {link: "http://git.io/vJ9nI"}));
+                            }
+                            else {
+                                basicBot.settings.language = argument;
+                                loadChat();
+                                API.sendChat(subChat(basicBot.chat.langset, {language: basicBot.settings.language}));
+                            }
+                        });
+                    }
+                }
+            },
+
             leaveCommand: {
                 command: 'leave',
                 rank: 'user',
@@ -2272,7 +2273,7 @@
                         if (dj === chat.uid) isDj = true;
                         if (perm >= 1 || isDj) {
                             if (media.format === 1) {
-                                var linkToSong = "https://www.youtube.com/watch?v=" + media.cid;
+                                var linkToSong = "http://youtu.be/" + media.cid;
                                 API.sendChat(subChat(basicBot.chat.songlink, {name: from, link: linkToSong}));
                             }
                             if (media.format === 2) {
@@ -2652,19 +2653,6 @@
                 }
             },
 
-            purchaseCommand: {
-                command: ['purchase'],
-                rank: 'user',
-                type: 'exact',
-                functionality: function (chat, cmd) {
-                    if (this.type === 'exact' && chat.message.length !== cmd.length) return void (0);
-                    if (!basicBot.commands.executable(this.rank, chat)) return void (0);
-                    else {
-                        API.sendChat(subChat(basicBot.chat.purchase, {name: chat.un}));
-                    }
-                }
-            },
-
             refreshCommand: {
                 command: 'refresh',
                 rank: 'manager',
@@ -2914,6 +2902,11 @@
                         else msg += 'OFF';
                         msg += '. ';
 
+                        msg += basicBot.chat.autoskip + ': ';
+                        if (basicBot.room.autoskip) msg += 'ON';
+                        else msg += 'OFF';
+                        msg += '. ';
+                        
                         var launchT = basicBot.room.roomstats.launchTime;
                         var durationOnline = Date.now() - launchT;
                         var since = basicBot.roomUtilities.msToStr(durationOnline);
