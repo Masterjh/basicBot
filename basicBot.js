@@ -38,13 +38,6 @@
 
     };
     
-    	API.on(API.ADVANCE, function(){
-		 var waitlist = API.getWaitList()
-			 if (waitlist.length > 0) {
-    				API.sendChat ('/me @' + waitlist[1].username + ' You\'re up shortly!')
-	}
-			  else {console.log('The waitlist is empty, fools')}
-	});
 
     var subChat = function (chat, obj) {
         if (typeof chat === "undefined") {
