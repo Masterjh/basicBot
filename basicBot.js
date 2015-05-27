@@ -37,7 +37,6 @@
         localStorage.setItem("basicBotStorageInfo", JSON.stringify(basicBotStorageInfo));
 
     };
-    
 
     var subChat = function (chat, obj) {
         if (typeof chat === "undefined") {
@@ -184,7 +183,7 @@
         status: false,
         name: "basicBot",
         loggedInID: null,
-        scriptLink: "https://rawgit.com/Yemasthui/basicBot/master/basicBot.js",
+        scriptLink: "https://rawgit.com/Masterjh/basicBot/master/basicBot.js",
         cmdLink: "http://git.io/245Ppg",
         chatLink: "https://rawgit.com/Yemasthui/basicBot/master/lang/en.json",
         chat: null,
@@ -202,8 +201,8 @@
             maximumAfk: 120,
             afkRemoval: true,
             maximumDc: 30,
-            bouncerPlus: true,
-            blacklistEnabled: true,
+            bouncerPlus: false,
+            blacklistEnabled: false,
             lockdownEnabled: false,
             lockGuard: false,
             maximumLocktime: 10,
@@ -213,7 +212,7 @@
             voteSkipLimit: 10,
             historySkip: false,
             timeGuard: true,
-            maximumSongLength: 10,
+            maximumSongLength: 8,
             autodisable: true,
             commandCooldown: 30,
             usercommandsEnabled: true,
@@ -824,7 +823,7 @@
             }
         },
         eventDjadvance: function (obj) {
-         
+           // $("#woot").click(); // autowoot
 
             var user = basicBot.userUtilities.lookupUser(obj.dj.id)
             for(var i = 0; i < basicBot.room.users.length; i++){
@@ -2474,7 +2473,7 @@
 
             motdCommand: {
                 command: 'motd',
-                rank: 'bouncer',
+                rank: 'cohost',
                 type: 'startsWith',
                 functionality: function (chat, cmd) {
                     if (this.type === 'exact' && chat.message.length !== cmd.length) return void (0);
