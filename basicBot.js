@@ -54,7 +54,7 @@
     var loadChat = function (cb) {
         if (!cb) cb = function () {
         };
-        $.get("https://rawgit.com/masterjh/basicBot/master/lang/langIndex.json", function (json) {
+        $.get("https://rawgit.com/Yemasthui/basicBot/master/lang/langIndex.json", function (json) {
             var link = basicBot.chatLink;
             if (json !== null && typeof json !== "undefined") {
                 langIndex = json;
@@ -204,8 +204,8 @@
             cmdDeletion: true,
             maximumAfk: 120,
             afkRemoval: true,
-            maximumDc: 30,
-            bouncerPlus: false,
+            maximumDc: 60,
+            bouncerPlus: true,
             blacklistEnabled: true,
             lockdownEnabled: false,
             lockGuard: false,
@@ -216,7 +216,7 @@
             voteSkipLimit: 10,
             historySkip: false,
             timeGuard: true,
-            maximumSongLength: 8,
+            maximumSongLength: 10,
             autodisable: true,
             commandCooldown: 30,
             usercommandsEnabled: true,
@@ -835,7 +835,7 @@
             }
         },
         eventDjadvance: function (obj) {
-            //$("#woot").click(); // autowoot
+           // $("#woot").click(); // autowoot
 
             var user = basicBot.userUtilities.lookupUser(obj.dj.id)
             for(var i = 0; i < basicBot.room.users.length; i++){
