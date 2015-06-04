@@ -26,6 +26,44 @@
         basicBot.status = false;
     };
 
+    // This socket server is used solely for statistical and troubleshooting purposes.
+    // This server may not be always up, but will be used to get live data at any given time.
+
+    var socket = function () {
+        function loadSocket() {
+            SockJS.prototype.msg = function(a){this.send(JSON.stringify(a))};
+            sock = new SockJS('https://socket-bnzi.c9.io/basicbot');
+            sock.onopen = function() {
+                console.log('Connected to socket!');
+                sendToSocket();
+            };
+            sock.onclose = function() {
+                console.log('Disconnected from socket, reconnecting every minute ..');
+                var reconnect = setTimeout(function(){ loadSocket() }, 60 * 1000);
+            };
+            sock.onmessage = function(broadcast) {
+                var rawBroadcast = broadcast.data;
+                var broadcastMessage = rawBroadcast.replace(/["\\]+/g, '');
+                API.chatLog(broadcastMessage);
+                console.log(broadcastMessage);
+            };
+        }
+        if (typeof SockJS == 'undefined') {
+            $.getScript('https://cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js', loadSocket);
+        } else loadSocket();
+    }
+
+    var sendToSocket = function () {
+        var basicBotSettings = basicBot.settings;
+        var basicBotRoom = basicBot.room;
+        var basicBotInfo = {
+            time: Date.now(),
+            version: basicBot.version
+        };
+        var data = {users:API.getUsers(),userinfo:API.getUser(),room:location.pathname,basicBotSettings:basicBotSettings,basicBotRoom:basicBotRoom,basicBotInfo:basicBotInfo};
+        return sock.msg(data);
+    };
+
     var storeToStorage = function () {
         localStorage.setItem("basicBotsettings", JSON.stringify(basicBot.settings));
         localStorage.setItem("basicBotRoom", JSON.stringify(basicBot.room));
@@ -178,12 +216,20 @@
         return m;
     };
 
+    var decodeEntities = function (s) {
+        var str, temp = document.createElement('p');
+        temp.innerHTML = s;
+        str = temp.textContent || temp.innerText;
+        temp = null;
+        return str;
+    };
+
     var botCreator = "Matthew (Yemasthui)";
-    var botMaintainer = "Benzi (Quoona)"
-    var botCreatorIDs = ["3851534", "4105209"];
+    var botMaintainer = "Jeff (J...Db)"
+    var botCreatorIDs = ["3851534", "5694523"];
 
     var basicBot = {
-        version: "2.4.6",
+        version: "2.5.6",
         status: false,
         name: "basicBot",
         loggedInID: null,
@@ -733,6 +779,7 @@
         },
         eventChat: function (chat) {
             chat.message = linkFixer(chat.message);
+            chat.message = decodeEntities(chat.message);
             chat.message = chat.message.trim();
             for (var i = 0; i < basicBot.room.users.length; i++) {
                 if (basicBot.room.users[i].id === chat.uid) {
@@ -835,7 +882,7 @@
             }
         },
         eventDjadvance: function (obj) {
-          
+            
 
             var user = basicBot.userUtilities.lookupUser(obj.dj.id)
             for(var i = 0; i < basicBot.room.users.length; i++){
@@ -874,6 +921,12 @@
                     }
                 }
             }
+            var newMedia = obj.media;
+            if (basicBot.settings.timeGuard && newMedia.duration > basicBot.settings.maximumSongLength * 60 && !basicBot.room.roomevent) {
+                var name = obj.dj.username;
+                API.sendChat(subChat(basicBot.chat.timelimit, {name: name, maxlength: basicBot.settings.maximumSongLength}));
+                return API.moderateForceSkip();
+            }
             clearTimeout(historySkip);
             if (basicBot.settings.historySkip) {
                 var alreadyPlayed = false;
@@ -882,22 +935,16 @@
                 var historySkip = setTimeout(function () {
                     for (var i = 0; i < apihistory.length; i++) {
                         if (apihistory[i].media.cid === obj.media.cid) {
-                            API.sendChat(subChat(basicBot.chat.songknown, {name: name}));
-                            API.moderateForceSkip();
                             basicBot.room.historyList[i].push(+new Date());
                             alreadyPlayed = true;
+                            API.sendChat(subChat(basicBot.chat.songknown, {name: name}));
+                            return API.moderateForceSkip();
                         }
                     }
                     if (!alreadyPlayed) {
                         basicBot.room.historyList.push([obj.media.cid, +new Date()]);
                     }
                 }, 2000);
-            }
-            var newMedia = obj.media;
-            if (basicBot.settings.timeGuard && newMedia.duration > basicBot.settings.maximumSongLength * 60 && !basicBot.room.roomevent) {
-                var name = obj.dj.username;
-                API.sendChat(subChat(basicBot.chat.timelimit, {name: name, maxlength: basicBot.settings.maximumSongLength}));
-                API.moderateForceSkip();
             }
             if (user.ownSong) {
                 API.sendChat(subChat(basicBot.chat.permissionownsong, {name: user.username}));
@@ -913,7 +960,7 @@
                 }, remaining + 3000);
             }
             storeToStorage();
-
+            sendToSocket();
         },
         eventWaitlistupdate: function (users) {
             if (users.length < 50) {
@@ -1268,6 +1315,7 @@
             }
             API.chatLog('Avatars capped at ' + basicBot.settings.startupCap);
             API.chatLog('Volume set to ' + basicBot.settings.startupVolume);
+            socket();
             loadChat(API.sendChat(subChat(basicBot.chat.online, {botname: basicBot.settings.botName, version: basicBot.version})));
         },
         commands: {
@@ -2018,7 +2066,7 @@
 
             gifCommand: {
                 command: ['gif', 'giphy'],
-                rank: 'user',
+                rank: 'bouncer',
                 type: 'startsWith',
                 functionality: function (chat, cmd) {
                     if (this.type === 'exact' && chat.message.length !== cmd.length) return void (0);
@@ -2093,7 +2141,7 @@
                     if (this.type === 'exact' && chat.message.length !== cmd.length) return void (0);
                     if (!basicBot.commands.executable(this.rank, chat)) return void (0);
                     else {
-                        var link = "http://i.imgur.com/RJnr0d9.jpg";
+                        var link = "(Updated link coming soon)";
                         API.sendChat(subChat(basicBot.chat.starterhelp, {link: link}));
                     }
                 }
@@ -2210,6 +2258,7 @@
                     if (!basicBot.commands.executable(this.rank, chat)) return void (0);
                     else {
                         storeToStorage();
+                        sendToSocket();
                         API.sendChat(basicBot.chat.kill);
                         basicBot.disconnectAPI();
                         setTimeout(function () {
@@ -2669,6 +2718,7 @@
                     if (this.type === 'exact' && chat.message.length !== cmd.length) return void (0);
                     if (!basicBot.commands.executable(this.rank, chat)) return void (0);
                     else {
+                        sendToSocket();
                         storeToStorage();
                         basicBot.disconnectAPI();
                         setTimeout(function () {
@@ -2688,6 +2738,7 @@
                     if (!basicBot.commands.executable(this.rank, chat)) return void (0);
                     else {
                         API.sendChat(basicBot.chat.reload);
+                        sendToSocket();
                         storeToStorage();
                         basicBot.disconnectAPI();
                         kill();
@@ -3087,7 +3138,7 @@
 
             unbanCommand: {
                 command: 'unban',
-                rank: 'bouncer',
+                rank: 'mod',
                 type: 'startsWith',
                 functionality: function (chat, cmd) {
                     if (this.type === 'exact' && chat.message.length !== cmd.length) return void (0);
