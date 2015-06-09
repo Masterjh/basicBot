@@ -2252,8 +2252,7 @@
                                         "api_key": api_key,
                                         "rating": rating
                                     },
-                                    function(response)
-                                    {
+                                    function(response)䀊                                    {
                                         func(response.data.id);
                                     }
                                     )
@@ -3179,7 +3178,7 @@
                 }
             },
 
-            swapCommand: {
+           /* swapCommand: {
                 command: 'swap',
                 rank: 'mod',
                 type: 'startsWith',
@@ -3216,7 +3215,7 @@
                     }
                 }
             },
-
+*/
             themeCommand: {
                 command: 'theme',
                 rank: 'user',
