@@ -3178,7 +3178,7 @@
                 }
             },
 
-           /* swapCommand: {
+            swapCommand: {
                 command: 'swap',
                 rank: 'mod',
                 type: 'startsWith',
@@ -3215,7 +3215,7 @@
                     }
                 }
             },
-*/
+
             themeCommand: {
                 command: 'theme',
                 rank: 'user',
