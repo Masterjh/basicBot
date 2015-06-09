@@ -2252,7 +2252,8 @@
                                         "api_key": api_key,
                                         "rating": rating
                                     },
-                                    function(response)䀊                                    {
+                                    function(response)
+                                    {
                                         func(response.data.id);
                                     }
                                     )
