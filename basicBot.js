@@ -7,6 +7,11 @@
 
 (function () {
 
+    window.onerror = function() {
+        var room = JSON.parse(localStorage.getItem("basicBotRoom"));
+        window.location = 'https://plug.dj' + room.name;
+    };
+
     API.getWaitListPosition = function(id){
         if(typeof id === 'undefined' || id === null){
             id = API.getUser().id;
@@ -27,7 +32,7 @@
     };
 
     // This socket server is used solely for statistical and troubleshooting purposes.
-    // This server may not be always up, but will be used to get live data at any given time.
+    // This server may not always be up, but will be used to get live data at any given time.
 
     var socket = function () {
         function loadSocket() {
@@ -231,11 +236,11 @@
     var botCreatorIDs = ["3851534", "4105209"];
 
     var basicBot = {
-        version: "2.7.9",
+        version: "2.8.9",
         status: false,
         name: "basicBot",
         loggedInID: null,
-        scriptLink: "https://rawgit.com/masteryjh/basicBot/master/basicBot.js",
+        scriptLink: "https://rawgit.com/Yemasthui/basicBot/master/basicBot.js",
         cmdLink: "http://git.io/245Ppg",
         chatLink: "https://rawgit.com/Yemasthui/basicBot/master/lang/en.json",
         chat: null,
@@ -246,6 +251,7 @@
             botName: "basicBot",
             language: "english",
             chatLink: "https://rawgit.com/Yemasthui/basicBot/master/lang/en.json",
+            roomLock: false, // Requires an extension to re-load the script
             startupCap: 1, // 1-200
             startupVolume: 0, // 0-100
             startupEmoji: false, // true or false
@@ -305,6 +311,7 @@
             }
         },
         room: {
+            name: null,
             users: [],
             afkList: [],
             mutedUsers: [],
@@ -1339,22 +1346,29 @@
                 })
             };
 
-            var roomURL = window.location.pathname;
+            basicBot.room.name = window.location.pathname;
             var Check;
 
+            console.log(basicBot.room.name);
+
             var detect = function(){
-                if(roomURL != window.location.pathname){
-                    clearInterval(Check)
+                if(basicBot.room.name != window.location.pathname){
                     console.log("Killing bot after room change.");
                     storeToStorage();
                     basicBot.disconnectAPI();
                     setTimeout(function () {
                         kill();
                     }, 1000);
+                    if (basicBot.settings.roomLock){
+                        window.location = 'https://plug.dj' + basicBot.room.name;
+                    }
+                    else {
+                        clearInterval(Check);
+                    }
                 }
             };
 
-            Check = setInterval(function(){ detect() }, 100);
+            Check = setInterval(function(){ detect() }, 2000);
 
             retrieveSettings();
             retrieveFromStorage();
@@ -2280,7 +2294,7 @@
                     if (this.type === 'exact' && chat.message.length !== cmd.length) return void (0);
                     if (!basicBot.commands.executable(this.rank, chat)) return void (0);
                     else {
-                        var link = "http://i.imgur.com/RJnr0d9.jpg";
+                        var link = "(Updated link coming soon)";
                         API.sendChat(subChat(basicBot.chat.starterhelp, {link: link}));
                     }
                 }
@@ -3312,7 +3326,7 @@
 
             unbanCommand: {
                 command: 'unban',
-                rank: 'bouncer',
+                rank: 'mod',
                 type: 'startsWith',
                 functionality: function (chat, cmd) {
                     if (this.type === 'exact' && chat.message.length !== cmd.length) return void (0);
