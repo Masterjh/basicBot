@@ -327,6 +327,7 @@
             usercommand: true,
             allcommand: true,
             afkInterval: null,
+            slackInterval: null,
             //autoskip: false,
             autoskipTimer: null,
             autodisableInterval: null,
@@ -831,8 +832,8 @@
                 return list;
             },
             reportUsersSlack: function() {
-            	numberUsers=API.getUsers().length;
-            	numberDjs=API.getWaitList().length;
+            	var numberUsers=API.getUsers().length;
+            	var numberDjs=API.getWaitList().length;
             	sendSlack("Users: "+numberUsers+"\nWaitlist: "+numberDjs);
             }
         },
@@ -1313,7 +1314,7 @@
                 eventVoteskip: $.proxy(this.eventVoteskip, this),
                 eventModskip: $.proxy(this.eventModskip, this),
                 eventChatcommand: $.proxy(this.eventChatcommand, this),
-                eventHistoryupdate: $.proxy(this.eventHistoryupdate, this),
+                eventHistoryupdate: $.proxy(this.eventHistoryupdate, this)
 
             };
             API.on(API.CHAT, this.proxy.eventChat);
