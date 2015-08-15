@@ -28,6 +28,7 @@
     var kill = function () {
         clearInterval(basicBot.room.autodisableInterval);
         clearInterval(basicBot.room.afkInterval);
+        clearInterval(basicBot.room.slackInterval);
         basicBot.status = false;
     };
 
@@ -229,6 +230,11 @@
         str = temp.textContent || temp.innerText;
         temp = null;
         return str;
+    };
+
+    var sendSlack = function(text) {
+    	$.post("https://hooks.slack.com/services/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",
+         	{payload:'{"text":"'+text+'"}'});
     };
 
     var botCreator = "Matthew (Yemasthui)";
@@ -823,6 +829,11 @@
                     });
                 }
                 return list;
+            },
+            reportUsersSlack: function() {
+            	numberUsers=API.getUsers().length;
+            	numberDjs=API.getWaitList().length;
+            	sendSlack("Users: "+numberUsers+"\nWaitlist: "+numberDjs);
             }
         },
         eventChat: function (chat) {
@@ -1411,6 +1422,9 @@
             basicBot.room.autodisableInterval = setInterval(function () {
                 basicBot.room.autodisableFunc();
             }, 60 * 60 * 1000);
+            basicBot.room.slackInterval = setInterval(function(){
+            	basicBot.roomUtilities.reportUsersSlack();
+            },60*60*1000)
             basicBot.loggedInID = API.getUser().id;
             basicBot.status = true;
             API.sendChat('/cap ' + basicBot.settings.startupCap);
@@ -1746,6 +1760,7 @@
                         var user = basicBot.userUtilities.lookupUserName(name);
                         if (typeof user === 'boolean') return API.sendChat(subChat(basicBot.chat.invaliduserspecified, {name: chat.un}));
                         API.moderateBanUser(user.id, 1, API.BAN.DAY);
+                        sendSlack("!ban: "+chat.un+" banned "+name);
                     }
                 }
             },
@@ -2393,6 +2408,7 @@
                             API.sendChat(subChat(basicBot.chat.kick, {name: chat.un, username: name, time: time}));
                             if (time > 24 * 60 * 60) API.moderateBanUser(user.id, 1, API.BAN.PERMA);
                             else API.moderateBanUser(user.id, 1, API.BAN.DAY);
+                            sendSlack("!kick: "+chat.un+" kicked "+name+" for "+time+" minutes");
                             setTimeout(function (id, name) {
                                 API.moderateUnbanUser(id);
                                 console.log('Unbanned @' + name + '. (' + id + ')');
@@ -2808,10 +2824,12 @@
                             else {
                                 API.moderateMuteUser(user.id, 1, API.MUTE.SHORT);
                                 API.sendChat(subChat(basicBot.chat.mutedtime, {name: chat.un, username: name, time: time}));
+
                                 setTimeout(function (id) {
                                     API.moderateUnmuteUser(id);
                                 }, time * 60 * 1000, user.id);
                             }
+                            sendSlack("!mute: "+chat.un+" muted "+name+" for "+time+" minutes");
                         }
                         else API.sendChat(subChat(basicBot.chat.muterank, {name: chat.un}));
                     }
