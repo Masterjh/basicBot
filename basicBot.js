@@ -461,6 +461,16 @@
                 }
                 return false;
             },
+            allowSong: function (name) {
+                for (var i = 0; i < basicBot.room.users.length; i++) {
+                    var match = basicBot.room.users[i].username.trim() == name.trim();
+                    if (match) {
+                        basicBot.room.users[i].allowSong = true;
+                        return basicBot.room.users[i];
+                    }
+                }
+                return false;
+            },
             voteRatio: function (id) {
                 var user = basicBot.userUtilities.lookupUser(id);
                 var votes = user.votes;
@@ -1676,9 +1686,8 @@
                         if (msg.length === cmd.length) return API.sendChat(subChat(basicBot.chat.nouserspecified, {name: chat.un}));
                         var name;
                         name = msg.substring(cmd.length + 2);
-                        var user = basicBot.userUtilities.lookupUserName(name);
+                        var user = basicBot.userUtilities.allowSong(name);
                         if (typeof user === 'boolean') return API.sendChat(subChat(basicBot.chat.invaliduserspecified, {name: chat.un}));
-                        user.allowSong=true;
                         return API.sendChat(subChat(basicBot.chat.allownextsong, {name: user.username}));
                     }
                 }
