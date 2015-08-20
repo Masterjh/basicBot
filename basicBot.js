@@ -379,12 +379,14 @@
                 },
                 endRoulette: function () {
                     basicBot.room.roulette.rouletteStatus = false;
-                    var ind = Math.floor(Math.random() * basicBot.room.roulette.participants.length);
+                    var participants = basicBot.room.roulette.participants.length;
+                    var ind = Math.floor(Math.random() * participants);
                     var winner = basicBot.room.roulette.participants[ind];
                     basicBot.room.roulette.participants = [];
                     var pos = Math.floor((Math.random() * API.getWaitList().length) + 1);
                     var user = basicBot.userUtilities.lookupUser(winner);
                     var name = user.username;
+                    sendSlack("Roulette: "+name+" won position "+pos+" (was "+user.lastKnownPosition+"), with "+participants+" participants");
                     API.sendChat(subChat(basicBot.chat.winnerpicked, {name: name, position: pos}));
                     setTimeout(function (winner, pos) {
                         basicBot.userUtilities.moveUser(winner, pos, false);
