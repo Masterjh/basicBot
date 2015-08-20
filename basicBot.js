@@ -415,6 +415,7 @@
                 songCount: 0
             };
             this.lastKnownPosition = null;
+            this.allowSong=false;
         },
         userUtilities: {
             getJointime: function (user) {
@@ -457,6 +458,16 @@
                 for (var i = 0; i < basicBot.room.users.length; i++) {
                     var match = basicBot.room.users[i].username.trim() == name.trim();
                     if (match) {
+                        return basicBot.room.users[i];
+                    }
+                }
+                return false;
+            },
+            allowSong: function (name) {
+                for (var i = 0; i < basicBot.room.users.length; i++) {
+                    var match = basicBot.room.users[i].username.trim() == name.trim();
+                    if (match) {
+                        basicBot.room.users[i].allowSong = true;
                         return basicBot.room.users[i];
                     }
                 }
@@ -954,7 +965,8 @@
                 $("#woot").click(); // autowoot
             }
 
-            var user = basicBot.userUtilities.lookupUser(obj.dj.id)
+            var user = basicBot.userUtilities.lookupUser(obj.dj.id);
+            var allowSong = false;
             for(var i = 0; i < basicBot.room.users.length; i++){
                 if(basicBot.room.users[i].id === user.id){
                     basicBot.room.users[i].lastDC = {
@@ -962,6 +974,8 @@
                         position: null,
                         songCount: 0
                     };
+                    allowSong = basicbot.room.users[i].allowSong;
+                    basicbot.room.users[i].allowSong = false;
                 }
             }
 
@@ -1000,7 +1014,7 @@
             }, 2000);
             var newMedia = obj.media;
             var timeLimitSkip = setTimeout(function () {
-                if (basicBot.settings.timeGuard && newMedia.duration > basicBot.settings.maximumSongLength * 60 && !basicBot.room.roomevent) {
+                if (basicBot.settings.timeGuard && newMedia.duration > basicBot.settings.maximumSongLength * 60 && !basicBot.room.roomevent && !allowSong ) {
                     var name = obj.dj.username;
                     API.sendChat(subChat(basicBot.chat.timelimit, {name: name, maxlength: basicBot.settings.maximumSongLength}));
                     if (basicBot.settings.smartSkip){
@@ -1658,6 +1672,25 @@
                         } else {
                         API.sendChat(subChat(basicBot.chat.inactivefor, {name: chat.un, username: name, time: time}));
                         }
+                    }
+                }
+            },
+
+            allowsongCommand: {
+                command: 'allowsong',
+                rank: 'mod',
+                type: 'startsWith',
+                functionality: function (chat, cmd) {
+                    if (this.type === 'exact' && chat.message.length !== cmd.length) return void (0);
+                    if (!basicBot.commands.executable(this.rank, chat)) return void (0);
+                    else {
+                        var msg = chat.message;
+                        if (msg.length === cmd.length) return API.sendChat(subChat(basicBot.chat.nouserspecified, {name: chat.un}));
+                        var name;
+                        name = msg.substring(cmd.length + 2);
+                        var user = basicBot.userUtilities.allowSong(name);
+                        if (typeof user === 'boolean') return API.sendChat(subChat(basicBot.chat.invaliduserspecified, {name: chat.un}));
+                        return API.sendChat(subChat(basicBot.chat.allownextsong, {name: user.username}));
                     }
                 }
             },
