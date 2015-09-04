@@ -312,6 +312,7 @@
             songstats: true,
             commandLiteral: "!",
             blacklists: {
+                TEST: "https://rawgit.com/fviii/basicBot/blob/master/bl.json"
                 NSFW: "https://rawgit.com/Masterjh/basicBot-customization/master/blacklists/NSFWlist.json",
                 OP: "https://rawgit.com/Masterjh/basicBot-customization/master/blacklists/OPlist.json",
                 BANNED: "https://rawgit.com/Masterjh/basicBot-customization/master/blacklists/BANNEDlist.json"
