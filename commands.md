@@ -16,6 +16,7 @@ Manager
 |!cycletimer | X | set the maximum DJ cycle time for when cycleguard is enabled |
 |!locktimer | X | set the maximum time the waitlist can be locked if lockguard is enabled |
 |!refresh | | refreshes the browser of whoever runs the bot |
+|!roulette | | start a roulette |
 |!usercmdcd | X | set the cooldown on commands by grey users |
 |!usercommands | | toggle user commands |
 |!voteskip | (X) | when no argument is specified, returns the current voteskip limit, when X is specified, voteskip limit is updated to the new specified limit. |
@@ -35,8 +36,8 @@ Bouncer+
 |!maxlength | X | specify the maximum length a song can be when timeguard is enabled |
 |!move | @user (X) | moves user to position X on the waitlist, default is position 1 |
 |!remove | @user | remove user from the waitlist |
-|!roulette | | start a roulette |
 |!songstats | | toggle song statistics |
+|!swap | @user @user | swaps positions of two users |
 |!unlock | | unlock the waitlist |
 |!welcome | | toggle the welcome message on user join |
 
